@@ -1,0 +1,276 @@
+\documentclass{article} 
+\usepackage{amsmath,amsthm}     
+\usepackage{graphicx}     
+\usepackage{hyperref} 
+\usepackage{url}
+\usepackage{amsfonts} 
+\usepackage{multicol}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{enumitem}
+
+\usetikzlibrary{positioning,chains,fit,shapes,calc}
+\theoremstyle{theorem}
+\newtheorem{theorem}{Theorem}
+
+\theoremstyle{definition}
+\newtheorem*{definition}{Definition}
+\newtheorem*{remark}{Remark}
+\newtheorem{proposition}{Proposition}
+
+\allowdisplaybreaks
+\usepackage{collectbox}
+\makeatletter
+\newcommand{\mybox}{%
+	\collectbox{%
+		\setlength{\fboxsep}{1pt}%
+		\fbox{\BOXCONTENT}%
+	}%
+}
+\@addtoreset{footnote}{page}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	
+	
+	\title{Runge-Kutta-Chebyshev methods}
+	
+	\author{Hoang Trung Hieu
+		%\scriptsize \\    
+	%Eötvös Loránd University \\               
+		%hthtb22@gmail.com
+	}                      
+	\date{2020}
+	\maketitle
+	
+	\noindent  
+	\section{Motivations}
+	 
+	 In practice, we may face up with some types of problem which may not very stiff, of large dimension. For example,parabolic heat equation or the advection-diffusion-reaction equation( is described below)
+	\[ \begin{aligned}
+	 	u_t+au_x&=\epsilon u_{xx} + \lambda u(1-u) \\
+	 	u_x(0,t)&=0, \quad t>0, \\
+	 	u(1,t)&=\frac{1}{2}(1+\sin(\omega t)), \quad t>0 \\
+	 	u(x,0)&=v(x), \quad 0<x<1
+	\end{aligned} \] where $a, \epsilon , \lambda , \omega$ is advection velocity, diffusion coefficient, source term coefficient and frequency, respectively.\\
+	We are expected to develop an explicit method whose absolute stability region lies on the negative real axis as long as possible and we do not concern about the outside of the real axis. In general, when we deal with stiff systems of ODEs: $$u'(t)=f(t,u(t)), \quad 0 <t \le T, \quad u(0)=u_0 \text{ is given}$$ The Runge-Kutta-Chebyshev(RKC) is an $s-$stage Runge-Kutta(RK) method designed for explicit integration of modestly stiff systems of ODEs. It satisfies two conditions:
+	\begin{enumerate}[label=(\roman*)]
+		\item The eigenvalue spectrum of the Jacobian matrix $\partial f(t,u)/ \partial U$ should lie in a narrow strip along the negative axis of the complex plane.
+		\item 	The Jacobian matrix should not digress too much from a normal matrix.
+	\end{enumerate}
+If the Jacobian matrix is symmetric and negative definite then two criteria hold.
+	 
+	\section{First-order RKC methods}
+Our goal is to find a stability polynomial $R(z)$ such that it has the constant coefficient $0$, first degree coefficient $1$ and $R(z) \le 1$ for as far as possible as we go out on the negative real axis. The two first conditions come from the consistency and first order accurary requirement. So, $R(0)=1$ and $R'(0)=1$. The last one seems like originate from trigonometry-formed polynomials. And the Chebyshev polynomials related to cosine functions satisfies the all conditions.\\
+Let us denote $T_s(x)$ be the Chebyshev polynomials of degree $s$ and are defined by the recursion below: $$T_0(x)=1 , T_1(x)=x , T_s(x)=2xT_{s-1}(x)-T_{s-2}(x)$$
+Or it can be defined in the interval $[-1,1]$ as $T_s(x)=\cos(s \arccos x) $ and for $x$ is outside this interval we can define in term of the hyperbolic cosine $T_s(x)=\cosh(s \cosh^{-1} x)$.The Chebyshev polynomial $T_s(x)$ equioscillates $s+1$ times in the
+interval $[-1,1]$ (see Figure[1])\\
+\includegraphics[scale=0.32]{pol4.png}
+\includegraphics[scale=0.32]{pol10.png}	
+
+\begin{center}
+	\figurename[1]{.The Chebyshev polinomials of degree 5 and 10}
+\end{center}
+Note that if $-1 \le x \le 1$ iff the absolute value of $T_s(x)$ is not bigger than 1. It requires to shift the function on the left 1. The optimal stability polynomial is a shifted Chebyshev polynomial and has a form $R_s(z)=T_s(1+\omega z)$.
+\begin{theorem}
+	For any explicit, consistent Runge-Kutta method we have stable interval is not exceed $2s^2$. The optimal stability polynomial is the shifted Chebyshev polynomial of the first kind
+	$$R_s(z)=T_s\left(1+\frac{z}{s^2}\right) $$
+\end{theorem}
+
+Let observe the coefficients of $R_s(z)$:
+$$a_0=a_1=1; a_i=\frac{1-(i-1)^2/s^2}{i(2i-1)}a_{i-1}$$ where $a_i$ be $i$-th degree coefficient of $R_s(z)$. It can be calculated because of power series form of Chebyshev polynomials $$T_s(x)= \sum_{i=0}^{s} \frac{(-s)_i(s)_i}{(1/2)_ii!} \left(\frac{1-x}{2}\right)^i$$ where $(x)_i=x(x+1) \cdots (x+i-1)$ for $x \in \mathbb{R}$\\
+For s is big enough and take the limit of $z$ to $0$ then we get 
+ $$R_s(z)= \cos (\sqrt{-2z}) \approx e^z-\frac{1}{3}z^2+O (z^3),$$ it means the leading error coefficient is $1/3$.
+
+\begin{center}
+	\begin{tabular}{ | m{12em} | m{8cm}|  }  
+\hline
+Chebyshev polynomials & Shifted Chebyshev polynomials \\
+\hline
+$T_1(x)=x$ & $R_1(z)=1+z$ \\
+\hline 
+ $T_2(x)=2x^2-1$ & $R_2(z)=1+z+\frac{1}{8}z^2$\\
+ \hline $T_3(x)=4x^3-3x$ &$R_3(z)=1+z+\frac{4}{27}z^2+\frac{4}{729}z^3$  \\
+ \hline $T_4(x)=8x^4-8x^2+1$ & $R_4(z)=1+z+\frac{5}{32}z^2+\frac{1}{128}z^3+\frac{1}{8192}z^4$\\
+ \hline
+ $T_5(x)=16x^5-20x^3+5x $  &     $R_5(z)=1+z+\frac{4}{25}z^2+\frac{28}{3125}z^3+\frac{16}{78125}z^4+\frac{16}{9765625}z^5$   \\
+\hline
+\end{tabular}
+\end{center}
+In Figure[2], we plot the absolute stability region of first-order RKC methods.The stability intervals contain interior points where $|R(z)|=1$. So these methods are applicable to only problems with real eigenvalues(such as MOL discretizations of the heat equations).\\
+		\includegraphics[scale=0.38]{abs_no_4.png}	
+\includegraphics[scale=0.38]{abs_no_10.png}
+\begin{center}
+	\figurename[2]{.The absolute stability region of the first-order RKC methods with $s=5$(left) and $s=10$(right)}
+\end{center}
+
+	\section{Second-order RKC methods}
+	As to computational practice, the second-order consistency is more efficient than the first-order. We are looking for a stability polynomial forming $1+z+\frac{1}{2}z^2+...$, since it should be a second order approximation to $e^z$. A suitable polynomial in analytical form is:
+	$$B_s(z)=\frac{2}{3}+\frac{1}{3s^2}+\left(\frac{1}{3}-\frac{1}{3s^2}\right)T_s\left(1+\frac{3z}{s^2-1}\right)$$
+	If we consider $z$ in the real number and $s$ is even then $|B_s(z)| \le 1 \Leftrightarrow |1+\dfrac{3z}{s^2-1}| \le 1 \Leftrightarrow -\dfrac{2}{3}(s^2-1) \le x \le 0$. In case $n$ is odd, the length of stability bound is slightly larger. (see Figure[3])\\
+	If we expand $B_z$, we will get:
+	$$B_s(z)=1+z+\frac{1}{2}z^2+\frac{-4+s^2}{10(-1+s^2)}z^3.$$ Or the coefficient of $B_z$ canm be written as $$a_0=a_1=1,\quad a_2=\frac{1}{2}, \quad a_i=\frac{3(1-(i-1)^2/s^2)}{i(2i-1)(1-1/s^2)}a_{i-1} \quad i>3.$$  
+	For example, $B_5(z)=1+z+\dfrac{1}{2}z^2+\dfrac{7}{80}z^3+\dfrac{1}{160}z^4+\dfrac{1}{6400}z^5$\\
+	Take $z \to 0$ and for large s,  
+	$$B_s(z)=\frac{2}{3}+\frac{1}{3} \cos(\sqrt{-6z})=e^z-\frac{1}{15}z^3+O(z^4)$$.That implies the leading error coefficient is 1/15. \\
+		\includegraphics[scale=0.38]{2un5.png}	
+	\includegraphics[scale=0.38]{2un10.png}
+	\begin{center}
+		\figurename[3]{.The absolute stability region of the second-order RKC methods with $s=5$(left) and $s=10$(right)}
+	\end{center} 
+	In general, the optimal bound for second-order RKC methods is approximately $0.82s^2$ , so the polynomial above generates about $80\%$ of the optimal bound.
+	\begin{remark}
+		The stability polynomial has the optimal bound does not mean it has a optimal small error constant. The second-order RKC method having optimal bound is:
+		$$\frac{2}{2-z} - \frac{z}{2-z}T_s(\cos \frac{\pi}{2}+\frac{z}{2}(1-\cos \frac{\pi}{s}))$$ with stability boundary $\dfrac{2}{\tan^2(\pi/2s)} \approx 0.81s^2$ 
+	\end{remark}
+	\begin{remark}
+		For higher-order methods,Riha proved the existence of such optimal polynomials for any order $p \ge 1$ and degree $s \ge p$. The optimal bound for  third-order is about $0.49 s^2$, for forth-order is nearly $0.34s^2$ and it can be estimated up to $11$-th-order. 
+	\end{remark}
+	\section{Damped RKC methods}
+	As we mentioned, if we use undamped RKC methods then only the problems which has the eigenvalues of Jacobian matrix are all real can be applied. Hence, it is  generally preferable to perturb the polynomial $R_s(z)$ a bit so the absolute of $(R(z))$ is bounded slightly below 1 on the real axis.. This is done by using the shifted Chebyshev polynomial
+	$$R_s(z)=\frac{T_s(w_0+w_1z)}{T_s(w_0)} \quad , \quad w_1=\frac{T_s(w_0)}{T'_s(w_0)} \quad , w_0>1$$
+	And we choose $w_0=1+\dfrac{\epsilon}{s^2}$ is so called damping parameter and in practice $\epsilon$ usually equals to 0.05. \\
+	At the point $z=1$, $T'_s(1)=s^2, T^{''}_s(1)=\frac{1}{3}s^2(s^2-1)$. Using the Taylor-expansion we have $T_s(w_0) \approx 1+ \epsilon$, that implies $R_s(z)$ ranges nearly in the interval $\left[-\dfrac{1}{1+\epsilon};\dfrac{1}{1+\epsilon}\right]$. Choosing $w_1$ bases on the first-order consistency. We should choose $w_1$ such that $R'_s(0)=1$. The stability boundary is $$\frac{2w_0T'_s(w_0)}{T_s(w_0)} \approx \left(2-\frac{4}{3} \epsilon\right)s^2$$
+	A suitable damping is $5 \%$ since the deviation around interior points will increase a bit without  a major decrease of stability boundary. In Figure[4.1], we compare the RKC of degree $5$ methods with different damping parameters $\epsilon=0.05$ and $\epsilon=0.01$    \\
+		\includegraphics[scale=0.38]{damped_1_5.png}	
+	\includegraphics[scale=0.38]{damped_1_5+.png}
+		\begin{center}
+			\figurename[4.1]{.The absolute stability region of the damped first-order RKC methods with $s=5, \epsilon =0.05$(left) and $s=5, \epsilon=0.01$(right)}
+		\end{center}	
+	\begin{center}
+		\includegraphics[scale=0.38]{damped_1_10.png}
+	\end{center}
+	\begin{center}
+			\figurename[4.2]{.The absolute stability region of the damped first-order RKC methods with $s=10, \epsilon =0.05$}
+	\end{center}
+Similar to the first-order, the second-order RKC methods are damped:
+	$$B_s(z)=1+\frac{T^{''}s(w_0)}{(T'_s(w_0))^2}(T_s(w_0+w_1z)-T_s(w_0)) \quad, \quad w_1=\frac{T'_s(w_0)}{T^{''}_s(w_0)}$$
+Let us explain why we could find $B_s(z)$. Suppose $B_s(z)$ has the form $a+b\dfrac{T_s(w_0+w_1z)}{T_s(w_0)}$. We are developing the second-order methods, so it requires $B_s(0)=1, B'_s(0)=1, B^{''}_s(0)=1$. That implies $$\left\{\begin{matrix}
+a+b=1\\ 
+b\dfrac{w_1T'_s(w_0)}{T_s(w_0))}=1\\ 
+b\dfrac{w_1^2 T''_s(w_0)}{T_s(w_0))}=1
+\end{matrix}\right. \Rightarrow  \left\{\begin{matrix}
+w_1=\dfrac{T'_s(w_0)}{T^{''}_s(w_0)}\\ 
+b=\dfrac{T_s(w_0)T^{''}_s(w_0)}{(T^{'}_s(w_0))^2}\\ 
+a=1-\dfrac{T_s(w_0)T^{''}_s(w_0)}{(T^{'}_s(w_0))^2}
+\end{matrix}\right.$$
+The length of boundary can be approximated to $$\frac{(w_0+1)T''_s(w_0)}{T_s'(w_0)} \approx \frac{2 (T''_s(1)+\epsilon T'''_s(1))}{T'_s(1)+\epsilon T''_s(1)} \approx \frac{2}{3}(s^2-1)(1-\frac{2}{15} \epsilon)$$
+Here we use $T''_s(1)=\frac{1}{3}s^2(s^2-1)$ and $T'''_s(1)=\frac{1}{15}s^2(s^2-1)(s^2-4)$.\\
+If we are expected that the interior of the stability interval get $5\%$ damping, we need to choose the damping parameter $\epsilon \approx 0.15$. The stability boundary will reduced $2\%$ compared to undamped case.
+	
+	\includegraphics[scale=0.38]{damped_2_5.png}	
+	\includegraphics[scale=0.38]{damped_2_10.png}
+	\begin{center}
+		\figurename[5]{.The absolute stability region of the damped second-order RKC methods with $s=5, \epsilon =0.05$(left) and $s=10, \epsilon=0.05$(right)}
+	\end{center}
+\section{General kernel representation of RKC methods}
+For explicit RK methods, the formula can be written as : $$ \begin{aligned}
+y_{n0}&=y_n\\ 
+y_{n1}&=y_n + h \alpha_{10}f(t_n+c_0h,y_{n0}))\\ 
+y_{n2}&=y_n + h (\alpha_{20}f(t_n+c_0h,y_{n0})+\alpha_{21}f(t_n+c_1h,y_{n1})\\ 
+\vdots \\
+y_{nj}&=y_n + h \sum_{k=0}^{j-1}\alpha_{kj}f(t_n+c_jh,y_{nj}) ,\quad j=1,\cdots, s. \\
+y_{n+1}&=y_{ns}\\ 
+\end{aligned}$$
+We consider the general stability polynomials are of the form
+$$R_j(z)=a_j+b_jT_j(w_0+w_1z), \quad a_j=1-b_jT_j(w_0)$$ where $w_0,w_1$ and $b_s$ are given, $b_j$ with $1 \le j < s$ are unidentified. $R_j(z)$ can be comprehended as the approximations at the point $x_0+c_jh$\\ Set $R_0(z)=a_0+b_0 \equiv 1$. 
+Note that $$R_j(z)-1=b_j(T_j(w_0+w_1z)-T_j(w_0))$$
+Using the recursive relationship of the Chebyshev polynomial we get
+$$R_j(z)-1=\mu_j(R_{j-1}(z)-1)+\nu_j(R_{j-2}(z)-1)+\tilde{\mu_{j}}z(R_{j-1}(z)-a_{j-1})$$ where $\tilde{\mu_{1}} =b_1w_1, \quad \mu_j=\dfrac{2b_jw_0}{b_{j-1}}, \quad \nu_j=\dfrac{-b_j}{b_{j-2}},\quad \tilde{\mu_j}=\dfrac{2b_jw_1}{b_{j-1}}$ \\
+From these formulas we can infer the RKC integration formulas for the nonlinear problem $w'(t) = f(t, w(t))$ by connecting $R_j$ with the intermediate approximation $y_{nj}$ and the occurrence of $z$ with a function evaluation
+$$\begin{aligned}
+y_{n0}&=y_n\\ 
+y_{n1}&=y_n + h \mu_{1}f(t_n+c_0h,y_{n0}))\\ 
+\vdots \\
+y_{nj}&=(1-\mu_i-\nu_j)y_n+\mu_jy_{n,j-1}+\nu_j y_{n,j-2} + h \left( \tilde{\mu_{j}}f(t_n+c_{j-1}h,y_{n,j-1}) +\tilde{\gamma_j}f(t_n+c_0h,y_{n0})\right )\\
+y_{n+1}&=y_{ns}\\ 
+\end{aligned}$$
+where $\tilde{\mu_{1}} =b_1w_1, \quad \mu_j=\dfrac{2b_jw_0}{b_{j-1}}, \quad \nu_j=\dfrac{-b_j}{b_{j-2}},\quad \tilde{\mu_j}=\dfrac{2b_jw_1}{b_{j-1}}, \quad \tilde{\gamma _j}=-a_{j-1} \tilde{\mu_j}$ \\
+\textbf{Question:} How to choose the value of $b_j$ and $c_j$?\begin{itemize}
+	\item In case of the damped first-order RKC methods, we should choose $b_j$ such that  $$R_j(z)=\frac{T_j(w_0+w_1z)}{T_j(w_0)} \quad , \quad w_1=\frac{T_s(w_0)}{T'_s(w_0)} \quad , w_0=1+\frac{\epsilon}{s^2}$$
+	$$b_j=\frac{1}{T_j(w_0)} , \quad c_j=\frac{T_s(w_0)T'_j(w_0)}{T'_s(w_0)T_j(w_0)}$$
+	\item As to the damped second-order RKC methods,
+	$$R_j(z)=1+b_jw_1T'_j(w_0)z+\frac{1}{2}b_jw_1^2T''_j(w_0)z^2 +O(z^3)$$
+	By second-order approximation of $x_0+c_jh$ we get $$R_j(0)=1, \quad R'_j(0)=c_j, \quad R''_j(0)=c_j^2$$ 
+	$$b_j=\frac{T''_j(w_0)}{(T'_j(w_0))^2} , \quad c_j=\frac{T'_s(w_0)T''_j(w_0)}{T''_s(w_0)T'_j(w_0)}$$
+\end{itemize}
+	\section{Numerical Experiments}
+	\subsection{Test problem}
+	Let us consider the initial value problem
+	$$x''(t)=-\frac{1}{4}x(t), \quad x \in \left[0,4 \pi\right]$$
+	with the initial conditions: $x(0)=0; x'(0)=1$.\\
+	The exact solution for this problem is $x(t)=\cos(\frac{x}{2})$. We implement the second-order damped RKC program with $s=5$ stages and $\epsilon = 0.15$ parameter. Comparing to exact solution with the number of interval $N=2^i, \ i=10, \dots , 14$, we make the following table (Errors are comprehended in maximum norm).
+	
+		\begin{center}
+			\begin{table}	
+		\begin{tabular}{ | m{1.5cm} | m{1.5cm}|  m{1.5cm}| m{1.5cm}| m{1.5cm}| m{1.5cm}|  }
+	\hline
+	$N=2^i$ & $i=10$ &  $i=11$ & $i=12$ & $i=13$ &  $i=14$  \\ 
+		\hline
+		Error (RKC5) & 1.7356e-5  & 4.3377e-6 & 1.0843e-6 & 2.7104e-7 & 6.7758e-8  \\
+		\hline
+		Error (RK2) &3.7001e-5 &9.2462e-6 &2.3111e-6 &5.7770e-7 & 1.4442e-7 \\
+		\hline
+	\end{tabular}	
+
+\caption{Errors for explicit 2nd-order RKC method ($s=5$) and RK2 }
+\end{table}
+	\end{center}
+	\subsection{Heat problem}
+	$$u_t=u_{xx}+u$$ with initial condition $u(0,x)=\sin(\pi x)$ and boundary conditions $u(t,0)=u(t,1)=0$.\\
+	The exact solution is $u(t,x)=e^{(1-\pi^2)t} \sin(\pi x)$. We split the $x-$axis into $N$ points and define $x_i = \frac{i}{N+1}$ and the distance between two consecutive points is $\Delta x = \frac{1}{N+1}$.Applying the  approximation with the second partial derivative $$u_t(t,x_i)= \frac{u(t,x_{i+1})-2u(t,x_i)+u(t,x_{i-1})}{h}+u(t,x_i)$$  We denote $u(t,x_i)=u_i(t)$ and $U(t)=(u_0(t), \dots , u_N(t))^T$, we get\\
+	$$U'(t)=\begin{pmatrix}
+	1-\frac{2}{h^2} &\frac{1}{h^2}  &  &  &  & \\ 
+	\frac{1}{h^2}& 1-\frac{2}{h^2} &\frac{1}{h^2}  &  &  & \\ 
+	&  &  & \ddots &  & \\ 
+	&  &  & \frac{1}{h^2} & 1-\frac{2}{h^2} & \frac{1}{h^2}\\ 
+	&  &  &  & \frac{1}{h^2} &1-\frac{2}{h^2} 
+	\end{pmatrix} U(t) $$
+	and $U(0)=(u_0(0), \dots , u_N(0))^T= (\sin 0 , \sin (\pi \Delta x) , \dots , \sin \pi)^T$ \\
+		\includegraphics[scale=0.38]{exact.png}
+\subsection{Diffusion problem}	The diffusion problem is the following
+$$\begin{aligned}\frac{\partial u}{\partial t}&=A+u^2v-(B+1)u+\alpha \frac{\partial^2u}{\partial x^2} \\ \frac{\partial v}{\partial t}&=Bu-u^2v+\alpha \frac{\partial^2v}{\partial x^2} \\
+& 0 \le x \le 1 \end{aligned}$$
+where $A=1,B=3, \alpha = 1/50$ and boundary conditions $$\begin{aligned} u(0,t)=u(1,t)=1&, \quad v(0,t)=v(1,t)=3 \\
+u(x,0)=1+\sin(2\pi x)&, \quad v(x,0)=3 \end{aligned}$$
+
+Replacing the second partial derivative terms by the approximation $u''(x) =\lim_{h \to 0} \dfrac{u(x+h)-2u(x)+u(x-h)}{h^2}$. In particular, split the $x-$axis into $N$ points and define $x_i = \frac{i}{N+1}$ and the uniform differences between two consecutive points is $\Delta x = \frac{1}{N+1}$.
+$$\begin{aligned}u'_i&= 1+u_i^2v_i-4u_i+\frac{\alpha}{(\Delta x)^2} (u_{i-1}-2u_i+u_{i+1}) \\v'_i&= 3u_i-u_i^2v_i+\frac{\alpha}{(\Delta x)^2} (u_{i-1}-2u_i+u_{i+1}) \\
+u_0(t)&=u_{N+1}(t)=1,\quad v_0(t)=v_{N+1}=t \\
+u_i(0)&=1+\sin(2\pi x_i), \quad v_i(0)=3 \end{aligned}$$
+The Jacobian matrix is $2N \times 2N$ matrix
+$$ \begin{pmatrix}
+diag(2u_iv_i-4)  &diag(u_i^2) \\ 
+diag(3-2u_iv_i) & diag(-u_i^2)
+\end{pmatrix} +\frac{\alpha}{(\Delta x)^2}\begin{pmatrix}
+K &0 \\ 
+0 & K
+\end{pmatrix}$$
+where $$K=\begin{pmatrix}
+-2 &1  &  &  & \\ 
+1& -2 &1  &  & \\ 
+&1  &\ddots  & \ddots & \\ 
+&  & \ddots &-2  &1 \\ 
+&  &  &  1&-2 
+\end{pmatrix}$$
+The eigenvalues of K is $\lambda_k(K)=-4 \left(\sin \dfrac{\pi k}{2N+2}\right)^2$
+
+
+	\begin{thebibliography}{5}
+		
+		\bibitem{example1}
+		E.Hairer, (1996)  \textit{G.Wanner Solving Ordinary Differential Equations II - stiff and
+		differential-algebraic problems}, Springer,15-39 
+		
+		
+		\bibitem{example2}
+	Randall and J. LeVeque, (2007), \textit{Finite Difference Methods	for Ordinary and Partial Differential Equations},SIAM,	175-179	
+		
+		\bibitem{example3}
+		Hundsdorfer, W. and Verwer, J. (2003). \textit{Numerical Solution of Time-Dependent Advection-Diffusion-Reaction Equations}. Springer Series in Computational Mathematics, 419–445.
+		\bibitem{example4}
+		Zhang Limei, (2010),\textit{The Second-order Explicit RKC Method}, CMCE conference
+	\end{thebibliography}
+	
+\end{document}
