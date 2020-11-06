@@ -8,3 +8,4 @@ Code files for project #3: RKC methods.
 | damped_first_order.ipynb   | Abs. stability region  of damped RKC - first order      | Figure[4]     |
 | damped_second_order.ipynb   | Abs. stability region  of damped RKC - second order      | Figure[5]     |
 | rkc5 stage.ipynb   | The RKC5 program      | Table[1]     |
+| rkc10.ipynb   | The RKC10 program      | Table[1]     |
