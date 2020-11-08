@@ -9,4 +9,5 @@ Code files for project #3: RKC methods.
 | damped_second_order.ipynb   | Abs. stability region  of damped RKC - second order      | Figure[5]     |
 | rkc5 stage.ipynb   | The RKC5 program for test problem    | Table[1]     |
 | rkc10.ipynb   | The RKC10 program  for test problem     | Table[1]     |
-| heat.ipynb   | The RKC10 program  for heat problem     | Figure[6.1]     |
+| heat (1).ipynb   | The RKC10 program  for heat problem     | Figure[6.1]     |
+| heat (2).ipynb   | The RKC15,19,25 program  for heat problem     | Figure[6.2]+ Table[2]     |
