@@ -1,7 +1,9 @@
 # rkc-elte
 Course: https://github.com/feipaat/Numerical-Methods-for-ODEs-1.-ELTE-/blob/master/List_Group_Projects
+
 Code files for project #3: RKC methods.
-Written by Hoang Trung Hieu
+
+Written by Hoang Trung Hieu.
 
 | File        | Mean        | Figure        |
 | :---        |    :----:   |          ---: |
