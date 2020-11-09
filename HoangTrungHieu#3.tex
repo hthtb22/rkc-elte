@@ -8,7 +8,9 @@
 \usepackage{tikz}
 \usepackage{tabularx}
 \usepackage{enumitem}
-
+\usepackage{hyperref}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\tridiag}{tridiag}
 \usetikzlibrary{positioning,chains,fit,shapes,calc}
 \theoremstyle{theorem}
 \newtheorem{theorem}{Theorem}
@@ -77,7 +79,8 @@ Note that if $-1 \le x \le 1$ iff the absolute value of $T_s(x)$ is not bigger t
 	For any explicit, consistent Runge-Kutta method we have stable interval is not exceed $2s^2$. The optimal stability polynomial is the shifted Chebyshev polynomial of the first kind
 	$$R_s(z)=T_s\left(1+\frac{z}{s^2}\right) $$
 \end{theorem}
-
+The proof of this theorem was provided by Marko in 1892 and Van Der Houwen
+in 1996. \\
 Let observe the coefficients of $R_s(z)$:
 $$a_0=a_1=1; a_i=\frac{1-(i-1)^2/s^2}{i(2i-1)}a_{i-1}$$ where $a_i$ be $i$-th degree coefficient of $R_s(z)$. It can be calculated because of power series form of Chebyshev polynomials $$T_s(x)= \sum_{i=0}^{s} \frac{(-s)_i(s)_i}{(1/2)_ii!} \left(\frac{1-x}{2}\right)^i$$ where $(x)_i=x(x+1) \cdots (x+i-1)$ for $x \in \mathbb{R}$\\
 For s is big enough and take the limit of $z$ to $0$ then we get 
@@ -108,10 +111,11 @@ In Figure[2], we plot the absolute stability region of first-order RKC methods.T
 	\section{Second-order RKC methods}
 	As to computational practice, the second-order consistency is more efficient than the first-order. We are looking for a stability polynomial forming $1+z+\frac{1}{2}z^2+...$, since it should be a second order approximation to $e^z$. A suitable polynomial in analytical form is:
 	$$B_s(z)=\frac{2}{3}+\frac{1}{3s^2}+\left(\frac{1}{3}-\frac{1}{3s^2}\right)T_s\left(1+\frac{3z}{s^2-1}\right)$$
-	If we consider $z$ in the real number and $s$ is even then $|B_s(z)| \le 1 \Leftrightarrow |1+\dfrac{3z}{s^2-1}| \le 1 \Leftrightarrow -\dfrac{2}{3}(s^2-1) \le x \le 0$. In case $n$ is odd, the length of stability bound is slightly larger. (see Figure[3])\\
+	If we consider $z$ in the real number and $s$ is even then $$|B_s(z)| \le 1 \Leftrightarrow -1-\dfrac{4s^2+2}{s^2-1} \le T_s\left(1+\dfrac{3z}{s^2-1}\right) \le 1 \Leftrightarrow -\dfrac{2}{3}(s^2-1) \le z \le 0.$$ In case $n$ is odd, the length of stability bound is slightly larger. (see Figure[3])\\
 	If we expand $B_z$, we will get:
 	$$B_s(z)=1+z+\frac{1}{2}z^2+\frac{-4+s^2}{10(-1+s^2)}z^3.$$ Or the coefficient of $B_z$ canm be written as $$a_0=a_1=1,\quad a_2=\frac{1}{2}, \quad a_i=\frac{3(1-(i-1)^2/s^2)}{i(2i-1)(1-1/s^2)}a_{i-1} \quad i>3.$$  
 	For example, $B_5(z)=1+z+\dfrac{1}{2}z^2+\dfrac{7}{80}z^3+\dfrac{1}{160}z^4+\dfrac{1}{6400}z^5$\\
+	$B_6(z)=1+z+\dfrac{1}{2}z^2+\dfrac{16}{175}z^3+\dfrac{324}{42875}z^4+\dfrac{432}{1500625}z^5+\dfrac{216}{52521875}z^6$\\
 	Take $z \to 0$ and for large s,  
 	$$B_s(z)=\frac{2}{3}+\frac{1}{3} \cos(\sqrt{-6z})=e^z-\frac{1}{15}z^3+O(z^4)$$.That implies the leading error coefficient is 1/15. \\
 		\includegraphics[scale=0.38]{2un5.png}	
@@ -134,10 +138,10 @@ In Figure[2], we plot the absolute stability region of first-order RKC methods.T
 	At the point $z=1$, $T'_s(1)=s^2, T^{''}_s(1)=\frac{1}{3}s^2(s^2-1)$. Using the Taylor-expansion we have $T_s(w_0) \approx 1+ \epsilon$, that implies $R_s(z)$ ranges nearly in the interval $\left[-\dfrac{1}{1+\epsilon};\dfrac{1}{1+\epsilon}\right]$. Choosing $w_1$ bases on the first-order consistency. We should choose $w_1$ such that $R'_s(0)=1$. The stability boundary is $$\frac{2w_0T'_s(w_0)}{T_s(w_0)} \approx \left(2-\frac{4}{3} \epsilon\right)s^2$$
 	A suitable damping is $5 \%$ since the deviation around interior points will increase a bit without  a major decrease of stability boundary. In Figure[4.1], we compare the RKC of degree $5$ methods with different damping parameters $\epsilon=0.05$ and $\epsilon=0.01$    \\
 		\includegraphics[scale=0.38]{damped_1_5.png}	
-	\includegraphics[scale=0.38]{damped_1_5+.png}
-		\begin{center}
-			\figurename[4.1]{.The absolute stability region of the damped first-order RKC methods with $s=5, \epsilon =0.05$(left) and $s=5, \epsilon=0.01$(right)}
-		\end{center}	
+	\includegraphics[scale=0.38]{damped_1_5+.png}	
+			\begin{center}
+					\figurename[4.1]{.The absolute stability region of the damped first-order RKC methods with $s=5, \epsilon =0.05$(left) and $s=5, \epsilon=0.01$(right)}
+			\end{center}			
 	\begin{center}
 		\includegraphics[scale=0.38]{damped_1_10.png}
 	\end{center}
@@ -165,14 +169,15 @@ If we are expected that the interior of the stability interval get $5\%$ damping
 		\figurename[5]{.The absolute stability region of the damped second-order RKC methods with $s=5, \epsilon =0.05$(left) and $s=10, \epsilon=0.05$(right)}
 	\end{center}
 \section{General kernel representation of RKC methods}
-For explicit RK methods, the formula can be written as : $$ \begin{aligned}
+For explicit RK methods, the formula can be written generally  as : $$ \begin{aligned}
 y_{n0}&=y_n\\ 
-y_{n1}&=y_n + h \alpha_{10}f(t_n+c_0h,y_{n0}))\\ 
-y_{n2}&=y_n + h (\alpha_{20}f(t_n+c_0h,y_{n0})+\alpha_{21}f(t_n+c_1h,y_{n1})\\ 
+y_{n1}&=y_n + h \alpha_{10}f(t_n+c_0h,y_{n0}))+r_1\\ 
+y_{n2}&=y_n + h (\alpha_{20}f(t_n+c_0h,y_{n0})+\alpha_{21}f(t_n+c_1h,y_{n1})+r_2\\ 
 \vdots \\
-y_{nj}&=y_n + h \sum_{k=0}^{j-1}\alpha_{kj}f(t_n+c_jh,y_{nj}) ,\quad j=1,\cdots, s. \\
+y_{nj}&=y_n + h \sum_{k=0}^{j-1}\alpha_{kj}f(t_n+c_jh,y_{nj})+r_j ,\quad j=1,\cdots, s. \\
 y_{n+1}&=y_{ns}\\ 
 \end{aligned}$$
+where $r_j$ are local perturbations representing for example round-off errors.\\
 We consider the general stability polynomials are of the form
 $$R_j(z)=a_j+b_jT_j(w_0+w_1z), \quad a_j=1-b_jT_j(w_0)$$ where $w_0,w_1$ and $b_s$ are given, $b_j$ with $1 \le j < s$ are unidentified. $R_j(z)$ can be comprehended as the approximations at the point $x_0+c_jh$\\ Set $R_0(z)=a_0+b_0 \equiv 1$. 
 Note that $$R_j(z)-1=b_j(T_j(w_0+w_1z)-T_j(w_0))$$
@@ -183,26 +188,42 @@ $$\begin{aligned}
 y_{n0}&=y_n\\ 
 y_{n1}&=y_n + h \mu_{1}f(t_n+c_0h,y_{n0}))\\ 
 \vdots \\
-y_{nj}&=(1-\mu_i-\nu_j)y_n+\mu_jy_{n,j-1}+\nu_j y_{n,j-2} + h \left( \tilde{\mu_{j}}f(t_n+c_{j-1}h,y_{n,j-1}) +\tilde{\gamma_j}f(t_n+c_0h,y_{n0})\right )\\
+y_{nj}&=(1-\mu_i-\nu_j)y_n+\mu_jy_{n,j-1}+\nu_j y_{n,j-2} \\ &+ h \left( \tilde{\mu_{j}}f(t_n+c_{j-1}h,y_{n,j-1}) +\tilde{\gamma_j}f(t_n+c_0h,y_{n0})\right ) \text{where} j=2, \cdots, s\\
 y_{n+1}&=y_{ns}\\ 
 \end{aligned}$$
 where $\tilde{\mu_{1}} =b_1w_1, \quad \mu_j=\dfrac{2b_jw_0}{b_{j-1}}, \quad \nu_j=\dfrac{-b_j}{b_{j-2}},\quad \tilde{\mu_j}=\dfrac{2b_jw_1}{b_{j-1}}, \quad \tilde{\gamma _j}=-a_{j-1} \tilde{\mu_j}$ \\
 \textbf{Question:} How to choose the value of $b_j$ and $c_j$?\begin{itemize}
 	\item In case of the damped first-order RKC methods, we should choose $b_j$ such that  $$R_j(z)=\frac{T_j(w_0+w_1z)}{T_j(w_0)} \quad , \quad w_1=\frac{T_s(w_0)}{T'_s(w_0)} \quad , w_0=1+\frac{\epsilon}{s^2}$$
-	$$b_j=\frac{1}{T_j(w_0)} , \quad c_j=\frac{T_s(w_0)T'_j(w_0)}{T'_s(w_0)T_j(w_0)}$$
+	The parameters $b_j$ are chosen to guarantee the first-order of the method. The parameters $c_j$ was defined as the linear coefficient of $R_j(z)$, namely $R_j(z)=1+c_jz+O(z^2)=1+b_jw_1T'_j(w_0)z+O(z^2)$.So ,
+	$$b_j=\frac{1}{T_j(w_0)} , \quad c_j=\frac{T_s(w_0)T'_j(w_0)}{T'_s(w_0)T_j(w_0)} \quad (1 \le j \le s-1) , \quad c_s=1$$
 	\item As to the damped second-order RKC methods,
 	$$R_j(z)=1+b_jw_1T'_j(w_0)z+\frac{1}{2}b_jw_1^2T''_j(w_0)z^2 +O(z^3)$$
 	By second-order approximation of $x_0+c_jh$ we get $$R_j(0)=1, \quad R'_j(0)=c_j, \quad R''_j(0)=c_j^2$$ 
+	Similar to the first-order method, we get
 	$$b_j=\frac{T''_j(w_0)}{(T'_j(w_0))^2} , \quad c_j=\frac{T'_s(w_0)T''_j(w_0)}{T''_s(w_0)T'_j(w_0)}$$
 \end{itemize}
 	\section{Numerical Experiments}
 	\subsection{Test problem}
 	Let us consider the initial value problem
-	$$x''(t)=-\frac{1}{4}x(t), \quad x \in \left[0,4 \pi\right]$$
+	$$x''(t)=-\frac{1}{4}x(t), \quad t \in \left[0,4 \pi\right]$$
 	with the initial conditions: $x(0)=0; x'(0)=1$.\\
-	The exact solution for this problem is $x(t)=\cos(\frac{x}{2})$. We implement the second-order damped RKC program with $s=5$ stages and $\epsilon = 0.15$ parameter. Comparing to exact solution with the number of interval $N=2^i, \ i=10, \dots , 14$, we make the following table (Errors are comprehended in maximum norm).
-	
-		\begin{center}
+	The exact solution for this problem is $x(t)=\cos(\frac{x}{2})$. We implement the first-order and second-order damped RKC program with $s=5$ stages and $s=10$ stages , $\epsilon = 0.05$ damping parameter. Comparing to exact solution with the number of interval $N=2^i, \ i=10, \dots , 14$, we see that the RKC methods run more accurate than the RK methods with same order and it also points out that increasing the number of stage decrease the error abit, see Table[1][2]. (Errors are comprehended in maximum norm).
+
+\begin{table}	
+	\begin{tabular}{ | m{1.5cm} | m{1.5cm}|  m{1.5cm}| m{1.5cm}| m{1.5cm}| m{1.5cm}|  }
+		\hline
+		$N=2^i$ & $i=10$ &  $i=11$ & $i=12$ & $i=13$ &  $i=14$  \\ 
+		\hline
+		Error (RKC5) & 1.3692e-2  & 6.8231e-3 & 3.4059e-3 & 1.7015e-3 & 8.5039e-4 \\
+		\hline
+		Error (RKC10) & 1.3480e-2  & 6.7179e-3 & 3.3534e-3 & 1.6753e-3 & 8.3731e-4 \\
+		\hline
+		Error (EE) &2.0450e-2 &1.0174e-2 &5.0747e-3 &2.5342e-3 & 1.2663e-3 \\
+		\hline		
+	\end{tabular}		
+	\caption{Errors for explicit 1st-order RKC method ($s=5,10$) and EE }
+\end{table}	
+		
 			\begin{table}	
 		\begin{tabular}{ | m{1.5cm} | m{1.5cm}|  m{1.5cm}| m{1.5cm}| m{1.5cm}| m{1.5cm}|  }
 	\hline
@@ -210,39 +231,80 @@ where $\tilde{\mu_{1}} =b_1w_1, \quad \mu_j=\dfrac{2b_jw_0}{b_{j-1}}, \quad \nu_
 		\hline
 		Error (RKC5) & 1.7356e-5  & 4.3377e-6 & 1.0843e-6 & 2.7104e-7 & 6.7758e-8  \\
 		\hline
+		Error (RKC10) & 1.5229e-5  & 3.8060e-6 & 9.5136e-7 & 2.3782e-7 & 5.9453e-8  \\
+			\hline
 		Error (RK2) &3.7001e-5 &9.2462e-6 &2.3111e-6 &5.7770e-7 & 1.4442e-7 \\
 		\hline
+		
 	\end{tabular}	
-
-\caption{Errors for explicit 2nd-order RKC method ($s=5$) and RK2 }
+\caption{Errors for explicit 2nd-order RKC method ($s=5,10$) and RK2 }
 \end{table}
-	\end{center}
-	\subsection{Heat problem}
-	$$u_t=u_{xx}+u$$ with initial condition $u(0,x)=\sin(\pi x)$ and boundary conditions $u(t,0)=u(t,1)=0$.\\
-	The exact solution is $u(t,x)=e^{(1-\pi^2)t} \sin(\pi x)$. We split the $x-$axis into $N$ points and define $x_i = \frac{i}{N+1}$ and the distance between two consecutive points is $\Delta x = \frac{1}{N+1}$.Applying the  approximation with the second partial derivative $$u_t(t,x_i)= \frac{u(t,x_{i+1})-2u(t,x_i)+u(t,x_{i-1})}{h}+u(t,x_i)$$  We denote $u(t,x_i)=u_i(t)$ and $U(t)=(u_0(t), \dots , u_N(t))^T$, we get\\
+
+	\subsection{Semi-discretizated heat problem}
+	Let us consider semi-discretizated heat problem with perturbation:
+	$$u_t=u_{xx}+u, \quad x \in \left[0,1\right], \quad t \in \left[0,1/2\right]$$ with initial condition $u(0,x)=\sin(\pi x)$ and boundary conditions $u(t,0)=u(t,1)=0$.\\
+	The exact solution is $u(t,x)=e^{(1-\pi^2)t} \sin(\pi x)$. We create in the $x-$axis  $N$ new points and define $x_i = \frac{i}{N+1}$ and the distance between two consecutive points is $h = \frac{1}{N+1}$.Applying the  approximation with the second partial derivative $$u_t(t,x_i)= \frac{u(t,x_{i+1})-2u(t,x_i)+u(t,x_{i-1})}{h^2}+u(t,x_i)$$  We denote $u(t,x_i)=u_i(t)$ and $U(t)=(u_0(t), \dots , u_{N+1}(t))^T$. Since $u(t,0)=u(t,1)=0$, we get\\
 	$$U'(t)=\begin{pmatrix}
-	1-\frac{2}{h^2} &\frac{1}{h^2}  &  &  &  & \\ 
-	\frac{1}{h^2}& 1-\frac{2}{h^2} &\frac{1}{h^2}  &  &  & \\ 
-	&  &  & \ddots &  & \\ 
-	&  &  & \frac{1}{h^2} & 1-\frac{2}{h^2} & \frac{1}{h^2}\\ 
-	&  &  &  & \frac{1}{h^2} &1-\frac{2}{h^2} 
+	0&0&0  &  &  &  & &0 \\
+	0&1-\frac{2}{h^2} &\frac{1}{h^2}  &  &  &  & & 0\\ 
+	0&\frac{1}{h^2}& 1-\frac{2}{h^2} &\frac{1}{h^2}  &  &  &  &\\ 
+	& &  &  & \ddots &  & &\\ 
+	& &  &  & \frac{1}{h^2} & 1-\frac{2}{h^2} & \frac{1}{h^2}&0\\ 
+	0& &  &  &  & \frac{1}{h^2} &1-\frac{2}{h^2} &0 \\
+	0& &  &  &  &  0&0 &0 
 	\end{pmatrix} U(t) $$
-	and $U(0)=(u_0(0), \dots , u_N(0))^T= (\sin 0 , \sin (\pi \Delta x) , \dots , \sin \pi)^T$ \\
-		\includegraphics[scale=0.38]{exact.png}
+	and $U(0)=(u_0(0), \dots , u_{N+1}(0))^T= (\sin 0 , \sin (\pi \Delta x) , \dots , \sin \pi)^T$ \\
+	We can rewrite the equation as:
+	$$U'(t)=\left(\frac{1}{h^2}\tridiag(1,-2,1)+I_{N-1}\right) U(t)$$
+	where we omit the first and last compenents of $U(t)$, $\tridiag$ is a tridiagonal matrix with the three stencils.\\
+	In the lecture we showed that the largest eigenvalue of $\tridiag(1,-2,1)$ is $$\dfrac{4}{h^2} \cos^2 \left(\dfrac{\pi h }{2}\right) \approx \dfrac{-4}{h^2}$$
+	We now use a time stepping scheme to discretize the problem in time. We take
+	time steps size $k$. For for convenience, we choose $h=k$.To compute the total number of time steps, we also take into account the number of stages required, which is obtained by $$s=\sqrt{\dfrac{\varrho(A)k}{\sigma}}$$
+	where $\varrho(A)$ is the spectral radius of the MOL discretization matrix of the heat equation, and $\sigma$ is a positive scalar. For the first order RKC schemes, the literature \cite{example4} suggests $\sigma = 1.9$, and for the second order RKC schemes, $\sigma = 0.653$. In particular, $\varrho(A) \approx \left|-4/h^2\right|$, $k=h$ then $$s=\frac{2}{\sqrt{\sigma h}}$$
+	For small values of h, the RKC schemes will generally require much fewer time steps than the Forward Euler scheme.\\
+	In Table[3], we calculate the errors between exact solution and numerical solution using different RKC multi-stage methods. The time interval equals $x-$axis interval $N$ is chosen as the optimal choice such that $s \approx 2/\sqrt{\sigma h}$. Figure[6] is the plot of these solutions.\\
+			\includegraphics[scale=0.38]{exact.png}
+		\includegraphics[scale=0.38]{heat10.png} \begin{center}
+		\figurename[6.1]{.The exact solution of the heat problem and numerical solution solved by RKC 10 stages, $N=8$} 
+	\end{center}		
+			\includegraphics[scale=0.38]{15-18.png}
+		\includegraphics[scale=0.38]{19-30.png}
+	\begin{center}
+			\includegraphics[scale=0.38]{25-49.png}
+	\end{center}
+		\begin{center}\figurename[6.2]{.Numerical solution solved by RKC methods, $s=15,N=18$,  $s=19,N=30$ and  $s=25,N=50$}
+		\end{center}
+	
+		\begin{table}
+		\begin{tabular}{ | m{15em} | m{2.5cm}|  }  
+			\hline
+			The number of stage and interval & Error (inf norm)\\
+			\hline
+			$s=10 , N=8$ &  0.67001\\
+			\hline 
+			$s=15 , N=18$ & 0.38906 \\
+		\hline
+			$s=19 , N=30$ & 0.25595 \\
+		\hline
+			$s=25 , N=50$ & 0.16549 \\
+		\hline
+		\end{tabular}
+	\caption{Errors between exact solution and numerical solution using different RKC multi-stage methods }
+	\end{table}
 \subsection{Diffusion problem}	The diffusion problem is the following
 $$\begin{aligned}\frac{\partial u}{\partial t}&=A+u^2v-(B+1)u+\alpha \frac{\partial^2u}{\partial x^2} \\ \frac{\partial v}{\partial t}&=Bu-u^2v+\alpha \frac{\partial^2v}{\partial x^2} \\
-& 0 \le x \le 1 \end{aligned}$$
+& 0 \le x \le 1, \quad 0 \le t \le 10 \end{aligned}$$
 where $A=1,B=3, \alpha = 1/50$ and boundary conditions $$\begin{aligned} u(0,t)=u(1,t)=1&, \quad v(0,t)=v(1,t)=3 \\
 u(x,0)=1+\sin(2\pi x)&, \quad v(x,0)=3 \end{aligned}$$
 
 Replacing the second partial derivative terms by the approximation $u''(x) =\lim_{h \to 0} \dfrac{u(x+h)-2u(x)+u(x-h)}{h^2}$. In particular, split the $x-$axis into $N$ points and define $x_i = \frac{i}{N+1}$ and the uniform differences between two consecutive points is $\Delta x = \frac{1}{N+1}$.
-$$\begin{aligned}u'_i&= 1+u_i^2v_i-4u_i+\frac{\alpha}{(\Delta x)^2} (u_{i-1}-2u_i+u_{i+1}) \\v'_i&= 3u_i-u_i^2v_i+\frac{\alpha}{(\Delta x)^2} (u_{i-1}-2u_i+u_{i+1}) \\
-u_0(t)&=u_{N+1}(t)=1,\quad v_0(t)=v_{N+1}=t \\
+$$\begin{aligned}u'_i&= 1+u_i^2v_i-4u_i+\frac{\alpha}{(\Delta x)^2} (u_{i-1}-2u_i+u_{i+1}) \\v'_i&= 3u_i-u_i^2v_i+\frac{\alpha}{(\Delta x)^2} (v_{i-1}-2v_i+v_{i+1}) \\
+u_0(t)&=u_{N+1}(t)=1,\quad v_0(t)=v_{N+1}(t)=3 \\
 u_i(0)&=1+\sin(2\pi x_i), \quad v_i(0)=3 \end{aligned}$$
 The Jacobian matrix is $2N \times 2N$ matrix
 $$ \begin{pmatrix}
-diag(2u_iv_i-4)  &diag(u_i^2) \\ 
-diag(3-2u_iv_i) & diag(-u_i^2)
+\diag(2u_iv_i-4)  &\diag(u_i^2) \\ 
+\diag(3-2u_iv_i) & \diag(-u_i^2)
 \end{pmatrix} +\frac{\alpha}{(\Delta x)^2}\begin{pmatrix}
 K &0 \\ 
 0 & K
@@ -254,9 +316,14 @@ where $$K=\begin{pmatrix}
 &  & \ddots &-2  &1 \\ 
 &  &  &  1&-2 
 \end{pmatrix}$$
-The eigenvalues of K is $\lambda_k(K)=-4 \left(\sin \dfrac{\pi k}{2N+2}\right)^2$
-
-
+The eigenvalues of K is $\lambda_k(K)=-4 \left(\sin \dfrac{\pi k}{2N+2}\right)^2$. Then Jacobian matrix's eigenvalues lie in a trip neighbouring the interval $[-4\alpha (N+1)^2 , 0]$. That's why the RKC methods can be applied for this problem.\\
+We illustrate the numerical solution solved by using RKC10 method with $101$ time inteval and $\Delta x =1/50$. (See Figure [7]) \\
+	\includegraphics[scale=0.38]{u(t,x).png}
+	\includegraphics[scale=0.38]{v(t,x).png}
+\begin{center}\figurename[7]{.Numerical solution of diffusion problem $u(t,x)$ (left) and $v(t,x)$ (right)}
+\end{center}
+\section*{Codes}
+All codes was uploaded at \href{https://github.com/hthtb22/rkc-elte}{https://github.com/hthtb22/rkc-elte}.
 	\begin{thebibliography}{5}
 		
 		\bibitem{example1}
@@ -270,7 +337,11 @@ The eigenvalues of K is $\lambda_k(K)=-4 \left(\sin \dfrac{\pi k}{2N+2}\right)^2
 		\bibitem{example3}
 		Hundsdorfer, W. and Verwer, J. (2003). \textit{Numerical Solution of Time-Dependent Advection-Diffusion-Reaction Equations}. Springer Series in Computational Mathematics, 419–445.
 		\bibitem{example4}
-		Zhang Limei, (2010),\textit{The Second-order Explicit RKC Method}, CMCE conference
+		J. G. Verwer, W. H. Hunsdorfer, and B. P. Sommeijer. \textit{Convergence properties
+		of the Runge-Kutta-Chebyshev method.} Numer. Math., 57:157-178, 1990.
+		\bibitem{example5}	
+		Zhang Limei, (2010),\textit{The Second-order Explicit RKC Method}, CMCE conference.
+		
 	\end{thebibliography}
 	
 \end{document}
