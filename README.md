@@ -22,5 +22,5 @@ Written by Hoang Trung Hieu.
 
 
 # Remark.
-1. Since all the equations we work with, the matrix do not contain $t$. Due to reduce the computational cost and to avoid mismatching dimension, I intentionally change the value of time in the loop.
+1. Since all the equations we work with, the matrix do not contain $t$. In order to reduce the computational cost and to avoid mismatching dimension, I intentionally change the value of time in the loop.
 2. Some programs are not really optimal in the way computing the Chebyshev polynomials, but I still keep it to show different way to work with it.
