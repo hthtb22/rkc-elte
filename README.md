@@ -12,6 +12,7 @@ Code files for project #3: RKC methods.
 | rkc10.ipynb   | The RKC10 program  for test problem     | Table[2]     |
 | heat (1).ipynb   | The RKC10 program  for heat problem     | Figure[6.1]  +Table[3]   |
 | heat (2).ipynb   | The RKC15,19,25 program  for heat problem     | Figure[6.2]+ Table[3]     |
+| heat++.ipynb   | The RKC30,40,50 program  for heat problem     | Table[3]   |
 | diffusion.ipynb   | The RKC10 program  for heat problem     | Figure[7]    |
 
 
