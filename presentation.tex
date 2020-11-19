@@ -1,0 +1,313 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+%\usebeamercolor{Madrid-default}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\makeatother
+\setbeamertemplate{footline}
+{
+	\leavevmode%
+	\hbox{%
+		\begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+			\usebeamerfont{author in head/foot}\insertshortauthor
+		\end{beamercolorbox}%
+		\begin{beamercolorbox}[wd=.6\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+			\usebeamerfont{title in head/foot}\insertshorttitle\hspace*{3em}
+			\insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+	\end{beamercolorbox}}%
+	\vskip0pt%
+}
+\makeatletter
+\setbeamertemplate{navigation symbols}{}
+
+
+\title[Runge-Kutta-Chebyshev Methods]{Runge-Kutta-Chebyshev Methods}
+
+\author{Hoang Trung Hieu}
+\centering
+\date{2020}
+
+\begin{document}
+\maketitle
+\begin{frame}{Outline}
+	
+	\begin{itemize}
+		\item  Preliminaries (Stability functions, stiffness)
+		\item How to design and implement the Runge-Kutta-Chebyshev (RKC) methods.
+		\item Numerical experiments 
+		%\item Extension for infinite graphs and pointwise convergence
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Preliminaries}
+	\begin{block}{Stability function}
+			The function $R(z)$ is called the \textbf{stability function} of the method if it can be interpreted as the numerical solution after one step for $$y'=\lambda y ,\quad y_0=1, \quad z=h \lambda$$
+			The set $$S=\{z \in \mathbb{C}: |R(z)| \le 1\}$$ is called the \textbf{stability domain} of the method.			
+	\end{block}
+
+ \begin{block}{Order of method}
+ \textbf{Theorem.} If the Runge-Kutta method is of order $p$, then $$R(z)=1+z+\frac{z^2}{2 !} +\cdots +\frac{z^p}{p !} +O(z^{p+1})$$
+ \end{block}
+\end{frame}
+
+
+\begin{frame}{Preliminaries} 
+ \begin{block}{}
+ A \textbf{stiff equation} is a differential equation for which certain numerical methods for solving the equation are numerically \textit{unstable}, unless the step size is taken to be extremely small.
+ \end{block}  
+ \begin{block}{Stiffness of ODEs}
+ 	Traditionally, a linear stiff system of size $n$ was defined by $Re(\lambda_i) <0, \quad 1 \le i \le n$
+ 	with $$\max_{1 \le i \le n} |Re(\lambda_i)| 
+ 	\gg \min_{1 \le i \le n} |Re(\lambda_i)|  $$
+ 	The \textbf{stiffness ratio}  R provided a measure of stiffness:
+ 	$$\dfrac{\max_{1 \le i \le n} |Re(\lambda_i)| }{
+ 	\min_{1 \le i \le n} |Re(\lambda_i)|}$$
+  $\lambda_i$ are the eigenvalues of the Jacobian of the system.
+  \end{block} 	
+ 
+\end{frame}
+
+
+\begin{frame}
+	\begin{block}{Semi-discretizated heat problem}
+	$$u_t=u_{xx} \quad \quad \text{(PDE)}$$
+	Or it can be rewrite by approximation  $$U'(t)=\frac{1}{h^2}tridiag(1,-2,1)U(t) \quad \quad \text{(ODEs)}$$	
+The largest eigenvalue of $\frac{1}{h^2}tridiag(1,-2,1)$ is $$\dfrac{4}{h^2} \cos^2 \left(\dfrac{\pi h }{2}\right) \approx \dfrac{-4}{h^2}$$
+	\end{block}	
+\end{frame}
+\begin{frame}{RKC methods}
+	\begin{block}{}
+	Let us consider the following stiff systems of ODEs: $$u'(t)=f(t,u(t)), \quad 0 <t \le T, \quad u(0)=u_0 \text{ is given}$$ The Runge-Kutta-Chebyshev(RKC) is an $s-$stage Runge-Kutta(RK) method designed for explicit integration of \textbf{modestly} stiff systems of ODEs. It satisfies two conditions:
+	\begin{enumerate}
+		\item The eigenvalue spectrum of the Jacobian matrix $\partial f(t,u)/ \partial U$ should lie in a narrow strip along the \textbf{negative axis} of the complex plane.
+		\item 	The Jacobian matrix should not digress too much from a\textbf{ normal matrix}.
+	\end{enumerate}
+	\end{block}	
+\end{frame}
+\begin{frame}{RKC methods}
+	\begin{block}{Chebyshev polynomials}
+		 $$T_0(x)=1 , T_1(x)=x , T_s(x)=2xT_{s-1}(x)-T_{s-2}(x)$$
+		 $$\begin{aligned}T_s(x)&=\cos(s \arccos x) \quad \text{if } x \in [-1,1] \\
+		 T_s(x)&=\cosh(s \cosh^{-1} x) \quad \text{if } x \notin [-1,1] \end{aligned}$$
+	\end{block}
+\includegraphics[scale=0.3]{pol4.png}
+\includegraphics[scale=0.3]{pol10.png}	
+	\end{frame}
+
+\begin{frame}{RKC methods}
+	\begin{beamerboxesrounded}{Theorem}		
+	
+For any explicit, consistent Runge-Kutta method we have stable interval is not exceed $2s^2$. The optimal stability polynomial is the shifted Chebyshev polynomial of the first kind
+$$R_s(z)=T_s\left(1+\frac{z}{s^2}\right) $$
+\end{beamerboxesrounded}
+\end{frame}
+
+\begin{frame}{RKC methods}
+	\includegraphics[scale=0.38]{abs_no_4.png}
+	\includegraphics[scale=0.38]{abs_no_10.png}
+	\figurename{.The absolute stability region of the second-order RKC methods with $s=5$(left) and $s=10$(right)}
+\end{frame}
+\begin{frame}{RKC methods}
+	\begin{beamerboxesrounded}{Damped first-order RKC methods}	
+$$R_s(z)=\frac{T_s(w_0+w_1z)}{T_s(w_0)} \quad , \quad w_1=\frac{T_s(w_0)}{T'_s(w_0)} \quad , w_0>1$$
+Choose $w_0=1+\dfrac{\epsilon}{s^2}$
+\end{beamerboxesrounded}
+\end{frame}
+  \begin{frame}{RKC methods}
+  		\includegraphics[scale=0.3]{damped_1_5+.png}
+  	\includegraphics[scale=0.3]{damped_1_10.png}
+  	\figurename{.The absolute stability region of the damped first-order RKC methods}
+  \end{frame}
+\begin{frame}{RKC methods}
+	\begin{columns}[T] % align columns
+			\begin{column}{1.\textwidth}			
+				Second-order RKC methods (undamped)
+						\color{blue}\rule{\linewidth}{3pt}
+						\begin{itemize}
+				\item Stabil polynomials
+				$$B_s(z)=\frac{2}{3}+\frac{1}{3s^2}+\left(\frac{1}{3}-\frac{1}{3s^2}\right)T_s\left(1+\frac{3z}{s^2-1}\right)$$ or
+				$$\frac{2}{2-z} - \frac{z}{2-z}T_s\left(\cos \frac{\pi}{2}+\frac{z}{2}\left(1-\cos \frac{\pi}{s}\right)\right)$$
+				\item In general, the optimal bound for second-order RKC methods is approximately
+				$0.82s^2$.
+			\end{itemize}
+		\end{column}%
+	\end{columns}
+	
+\end{frame}
+
+\begin{frame}{RKC methods}
+	\begin{columns}[T] % align columns
+		\begin{column}{1.\textwidth}			
+			Second-order RKC methods (damped)
+			\color{blue}\rule{\linewidth}{3pt}
+			\begin{itemize}
+				\item Stabil polynomials
+				$$B_s(z)=1+\frac{T^{''}s(w_0)}{(T'_s(w_0))^2}(T_s(w_0+w_1z)-T_s(w_0)) \quad, \quad w_1=\frac{T'_s(w_0)}{T^{''}_s(w_0)}$$
+				\item If we are expected that the interior of the stability interval get $5\%$ damping, we need to choose the damping parameter $\epsilon \approx 0.15$. The stability boundary will reduced $2\%$ compared to undamped case.
+				
+			\end{itemize}
+		\end{column}%
+	\end{columns}
+	
+\end{frame}
+\begin{frame}{RKC methods}
+	\includegraphics[scale=0.35]{2un5.png}
+	\includegraphics[scale=0.35]{damped_2_5.png}
+	\figurename{.The absolute stability region of the second-order RKC methods with $s=5$, undamped (left) and damped (right)}
+\end{frame}
+\begin{frame}{RKC methods}
+\begin{block}{General kernel representation}
+		$$\begin{aligned}
+		y_{n0}&=y_n\\ 
+		y_{n1}&=y_n + h \mu_{1}f(t_n+c_0h,y_{n0}))\\ 
+		\vdots \\
+		y_{nj}&=(1-\mu_i-\nu_j)y_n+\mu_jy_{n,j-1}+\nu_j y_{n,j-2} \\ &+ h \left( \tilde{\mu_{j}}f(t_n+c_{j-1}h,y_{n,j-1}) +\tilde{\gamma_j}f(t_n+c_0h,y_{n0})\right )\\ &\text{where } j=2, \cdots, s\\
+		y_{n+1}&=y_{ns}\\ 
+	\end{aligned} $$ \\
+	where $\tilde{\mu_{1}} =b_1w_1, \quad \mu_j=\dfrac{2b_jw_0}{b_{j-1}}, \quad \nu_j=\dfrac{-b_j}{b_{j-2}},\quad \tilde{\mu_j}=\dfrac{2b_jw_1}{b_{j-1}}, \quad \tilde{\gamma _j}=-a_{j-1} \tilde{\mu_j}$
+	\end{block}
+  \end{frame}
+
+\begin{frame}{RKC methods}
+	\begin{columns}[T] % align columns
+		\begin{column}{.48\textwidth}			
+			First-order RKC methods
+			
+			\color{red}\rule{\linewidth}{3pt}
+			\begin{itemize}
+				\item  $$b_j=\frac{1}{T_j(w_0)} $$
+				\item  $$ c_j=\frac{T_s(w_0)T'_j(w_0)}{T'_s(w_0)T_j(w_0)}$$
+			
+			\end{itemize}
+		\end{column}%
+		\hfill%
+		\begin{column}{.48\textwidth}			
+			Second-order RKC methods
+			\color{blue}\rule{\linewidth}{3pt}
+			\begin{itemize}
+				\item $$b_j=\frac{T''_j(w_0)}{(T'_j(w_0))^2} $$
+				\item $$c_j=\frac{T'_s(w_0)T''_j(w_0)}{T''_s(w_0)T'_j(w_0)}$$
+			\end{itemize}
+		\end{column}%
+	\end{columns}
+	
+\end{frame}
+
+
+\begin{frame}{Numerical Experiments}
+\begin{block}{Test problem}
+Let us consider the initial value problem
+$$x''(t)=-\frac{1}{4}x(t), \quad t \in \left[0,4 \pi\right]$$
+with the initial conditions: $x(0)=0; x'(0)=1$.\\
+The exact solution for this problem is $x(t)=\cos(\frac{x}{2})$
+\end{block}
+\end{frame}
+\begin{frame}{Numerical Experiments}
+	\begin{table}	
+		\begin{tabular}{ | m{1.5cm} | m{1.5cm}|  m{1.5cm}| m{1.5cm}| m{1.5cm}| m{1.5cm}|  }
+			\hline
+			$N=2^i$ & $i=10$ &  $i=11$ & $i=12$ & $i=13$ &  $i=14$  \\ 
+			\hline
+			Error (RKC5) & 1.3692e-2  & 6.8231e-3 & 3.4059e-3 & 1.7015e-3 & 8.5039e-4 \\
+			\hline
+			Error (RKC10) & 1.3480e-2  & 6.7179e-3 & 3.3534e-3 & 1.6753e-3 & 8.3731e-4 \\
+			\hline
+			Error (EE) &2.0450e-2 &1.0174e-2 &5.0747e-3 &2.5342e-3 & 1.2663e-3 \\
+			\hline		
+		\end{tabular}		
+		\caption{Errors for explicit 1st-order RKC method ($s=5,10$) and EE }
+	\end{table}	
+	
+
+	
+\end{frame}
+\begin{frame}{Numerical Experiments}
+		\begin{table}	
+		\begin{tabular}{ | m{1.5cm} | m{1.5cm}|  m{1.5cm}| m{1.5cm}| m{1.5cm}| m{1.5cm}|  }
+			\hline
+			$N=2^i$ & $i=10$ &  $i=11$ & $i=12$ & $i=13$ &  $i=14$  \\ 
+			\hline
+			Error (RKC5) & 1.7356e-5  & 4.3377e-6 & 1.0843e-6 & 2.7104e-7 & 6.7758e-8  \\
+			\hline
+			Error (RKC10) & 1.5229e-5  & 3.8060e-6 & 9.5136e-7 & 2.3782e-7 & 5.9453e-8  \\
+			\hline
+			Error (RK2) &3.7001e-5 &9.2462e-6 &2.3111e-6 &5.7770e-7 & 1.4442e-7 \\
+			\hline
+			
+		\end{tabular}	
+		\caption{Errors for explicit 2nd-order RKC method ($s=5,10$) and RK2 }
+	\end{table}
+\end{frame}
+\begin{frame}{Numerical Experiments}
+\begin{block}{Semi-discretizated heat problem}
+	Let us consider semi-discretizated heat problem with perturbation:
+	$$u_t=u_{xx}+u, \quad x \in \left[0,1\right], \quad t \in \left[0,1/2\right]$$ with initial condition $u(0,x)=\sin(\pi x)$ and boundary conditions $u(t,0)=u(t,1)=0$.\\
+	The exact solution is $u(t,x)=e^{(1-\pi^2)t} \sin(\pi x)$
+\end{block}	
+\end{frame}
+\begin{frame}{Numerical Experiments}
+	\includegraphics[scale=0.3]{exact.png}
+	\includegraphics[scale=0.3]{25-49.png}
+\end{frame}
+
+\begin{frame}{Numerical Experiments}
+	\includegraphics[scale=0.3]{heat10.png}
+	\includegraphics[scale=0.3]{heat10+.png}
+	\figurename{.Numerical solution solved by RKC methods, $s=10,N=8$(left),  $s=10,N=10$(right) }
+\end{frame}
+\begin{frame}{Numerical Experiments}
+	\begin{table}
+		\begin{tabular}{ | m{10em} | m{3.5cm}|  }  
+			\hline
+			The number of stage and interval & Error (inf norm)\\
+			\hline
+			$s=10 , N=8$ &  0.67001\\
+			\hline 
+			$s=15 , N=18$ & 0.38906 \\
+			\hline
+			$s=19 , N=30$ & 0.25595 \\
+			\hline
+			$s=25 , N=50$ & 0.16549 \\
+			\hline
+				$s=30 , N=70$ & 0.11901 \\
+			\hline
+			$s=40 , N=125$ & 0.068492 \\
+			\hline
+			$s=50 , N=196$ & 0.044244 \\
+			\hline
+			
+		\end{tabular}
+	\caption{Errors between exact solution and numerical solution using different RKC multi-stage methods }
+\end{table}
+\end{frame}
+\begin{frame}{Numerical Experiments}
+	\begin{block}{Diffusion problem}
+			The diffusion problem is the following
+		$$\begin{aligned}\frac{\partial u}{\partial t}&=A+u^2v-(B+1)u+\alpha \frac{\partial^2u}{\partial x^2} \\ \frac{\partial v}{\partial t}&=Bu-u^2v+\alpha \frac{\partial^2v}{\partial x^2} \\
+			& 0 \le x \le 1, \quad 0 \le t \le 10 \end{aligned}$$
+		where $A=1,B=3, \alpha = 1/50$ and boundary conditions $$\begin{aligned} u(0,t)=u(1,t)=1&, \quad v(0,t)=v(1,t)=3 \\
+			u(x,0)=1+\sin(2\pi x)&, \quad v(x,0)=3 \end{aligned}$$		
+	\end{block}
+\end{frame}
+\begin{frame}{Numerical Experiments}
+	\includegraphics[scale=0.58]{u(t,x).png}
+	
+\end{frame}
+\begin{frame}{Numerical Experiments}
+	\includegraphics[scale=0.58]{v(t,x).png}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}
+
+THANK YOU FOR YOUR ATTENTION!
+\end{frame}
+
+
+
+\end{document}
